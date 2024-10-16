@@ -1,0 +1,23 @@
+services:
+  php:
+    build:
+      dockerfile: ./docker/Dockerfile-php
+    networks:
+      - symfony
+    volumes:
+      - .:/var/www/html
+  nginx:
+    build:
+      dockerfile: ./docker/Dockerfile-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - symfony
+
+networks:
+  symfony:
+    driver: bridge
