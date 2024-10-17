@@ -1,3 +1,10 @@
+
+Just another boring docker for PHP-Symfony.
+
+Automatically runs Symfony installation with basic skeleton, you can change within docker-compose configuration the PHP version to use in composer and the Symfony version
+
+It is only for development purposes :P
+
 ## Create Docker
 
 Build fresh images and start project
@@ -11,34 +18,10 @@ Stop and remove containers.
 ```
 docker compose down --remove-orphans
 ```
-
-## Delete all on Docker (Only for Dev)
-
-### 1. Stop and delete all containers (if exists)
-
-```
-docker ps -q | xargs -r docker stop
-docker ps -aq | xargs -r docker rm
-```
-
-### 2. Delete all images, volumes and networks (if exists)
-
-```
-docker images -q | xargs -r docker rmi -f
-docker volume ls -q | xargs -r docker volume rm
-docker network ls -q | xargs -r docker network rm
-```
-
-### 3. Clean unused data
-
-```
-docker system prune -a --volumes
-```
-
 ### 3. Delete All (risky!)
 
 ```
- docker system prune --all --volumes
+docker system prune --all --volumes
 
 sudo rm -rf /var/lib/docker
 ```
