@@ -25,3 +25,7 @@ docker system prune --all --volumes
 
 sudo rm -rf /var/lib/docker
 ```
+
+// TODO
+Aplicar API instalacion
+Aplicar sniffers

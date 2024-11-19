@@ -1,41 +1,64 @@
-#!/bin/sh
+#!/bin/bash
 set -e
+
+dependencies=(
+  "symfony/orm-pack"
+  "api-platform/core"
+  "nesbot/carbon"
+  "symfonycasts/micro-mapper"
+)
+
+dev_dependencies=(
+  "dama/doctrine-test-bundle"
+  "doctrine/coding-standard"
+  "doctrine/doctrine-fixtures-bundle"
+  "phpunit/phpunit"
+  "slevomat/coding-standard"
+  "squizlabs/php_codesniffer"
+  "symfony/browser-kit"
+  "symfony/css-selector"
+  "symfony/maker-bundle"
+  "symfony/phpunit-bridge"
+  "zenstruck/browser"
+  "zenstruck/foundry"
+  "mtdowling/jmespath.php"
+)
+
 
 echo "Using Symfony Version: ${SYMFONY_VERSION}"
 echo "Using PHP Version: ${PHP_VERSION}"
 
-# Checking if Symfony's project exist
-if [ -f "composer.json" ]; then
-  echo "There is already a Symfony project. Skip installation."
-else
 
-  # Create temporary in tmp file
+if [ ! -f composer.json ]; then
+  echo "A composer.json does not exist, creating Symfony application"
   composer create-project "symfony/skeleton ${SYMFONY_VERSION}" tmp --prefer-dist --no-progress --no-interaction --no-install || {
-    echo "Error: Download of Symfony Skeleton failed."
-    exit 1
+   echo "Error: Download of Symfony Skeleton failed."
+   exit 1
   }
 
-  # Move directory
-  cd tmp
-  cp -Rp . ..
-  cd ..
+  # Move directory contents to the current directory
+  mv tmp/* tmp/.* . 2>/dev/null || true
   rm -rf tmp/
 
-  #Add extras to composer.json
-  composer require "php:>=${PHP_VERSION}"
-	composer config --json extra.symfony.docker 'true'
+  # Define Configs.
+  composer config --json extra.symfony.docker 'false'
 
-  echo "Symfony's skeleton correctly installed."
+  # Add Required packages.
+  composer require --no-update "php:>=${PHP_VERSION}"
+  composer require --no-update "${dependencies[@]}"
+  composer require --dev --no-update "${dev_dependencies[@]}"
 fi
 
-# Check and install dependencies
-if [ ! -d "vendor" ] || [ -z "$(ls -A vendor 2>/dev/null)" ]; then
-  echo "Installing composer dependencies..."
-  composer install --prefer-dist --no-progress --no-interaction || {
-    echo "Error: Dependency installation failed."
-    exit 1
-  }
-  echo "Dependencies installed successfully."
-else
-  echo "Dependencies already installed."
+# If the vendor folder is empty, install the packages
+if [ ! -d "vendor" ] || [ -z "$(ls -A 'vendor/' 2>/dev/null)" ]; then
+
+  composer update --dev --prefer-dist --no-progress --no-interaction & install_pid=$!
+
+  if wait $install_pid; then
+    echo "Dependencies installed successfully."
+  else
+    echo "Error: Dependencies installation failed."
+  exit 1
+  fi
+
 fi
