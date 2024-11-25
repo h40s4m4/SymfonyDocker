@@ -1,17 +1,14 @@
 services:
   php:
-    #container_name: php_dev
     build:
       dockerfile: ./docker/Dockerfile-php
     environment:
       SYMFONY_VERSION: ${SYMFONY_VERSION:-7.1.*}
       PHP_VERSION: ${PHP_VERSION:-8.3}
       DATABASE_URL: mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-!ChangeMe!}@localhost:3306/${MYSQL_DATABASE:-app}?serverVersion=${MYSQL_VERSION:-8}&charset=utf8mb4
-      networks: symfony
     volumes:
       - .:/var/www/html
   nginx:
-    #container_name: nginx_dev
     build:
       dockerfile: ./docker/Dockerfile-nginx
     ports:
@@ -30,16 +27,18 @@ services:
     networks:
       - symfony
   database:
-    image: mysql:${MYSQL_VERSION:-8}
-    #container_name: mysql_dev
+    image: mysql:${MYSQL_VERSION:-8.4}
+    restart: always
     environment:
       #MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
       MYSQL_RANDOM_ROOT_PASSWORD: "true"
       MYSQL_USER: ${MYSQL_USER:-app}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      INCLUDE_TEST: ${TEST_DB:-true}
     volumes:
       - database_data:/var/lib/mysql:rw
+      - ./docker/scripts/db_test.sql:/docker-entrypoint-initdb.d/db_test.sql
     ports:
       - "3306:3306"
     networks:
