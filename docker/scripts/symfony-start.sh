@@ -60,54 +60,38 @@ if [ ! -f composer.json ]; then
 
   # Basic Skeleton Install.
   composer config --json extra.symfony.docker 'false'
-  composer require "php:>=$PHP_VERSION"
-  composer update --prefer-dist --no-progress --no-interaction
-
-  # Required Dependencies install.
-  composer require --prefer-dist --no-progress --no-interaction --no-install "${dependencies[@]}"
-  composer update --no-progress --no-interaction
-
-  # Add and install basic dev dependencies.
-  composer require --dev --prefer-dist --no-progress --no-interaction --no-install "${basic_dev_dependencies[@]}"
-  composer update --no-progress --no-interaction
-
-  #Add and install test dependencies.
-  composer require --dev --prefer-dist --no-progress --no-interaction --no-install "${test_dependencies[@]}"
-  composer update --no-progress --no-interaction
-
-#  composer require --dev --no-update "${basic_dev_dependencies[@]}"
-#  composer require --dev --no-update "${test_dependencies[@]}"
-##  composer require --dev --no-update "${coding_standar_dependencies[@]}"
-#  composer install --prefer-dist --no-progress --no-interaction
-
-#  composer update --no-progress --no-interaction
-
+  composer require "php:>=$PHP_VERSION" --prefer-dist --no-progress --no-interaction
 fi
 
-#echo "Uasdfasdfasfd"
+if [ -z "$(ls -A 'vendor/' 2>/dev/null)" ]; then
+  echo "Installing dependencies..."
+  composer install --prefer-dist --no-progress --no-interaction
+fi
+
+
+# Mark container as healthy
+touch /tmp/healthy
+echo "Container is now healthy."
+
+#exec docker-php-entrypoint "$@"
+
+#composer update --prefer-dist --no-progress --no-interaction
 #
-#
-#  composer require --no-update "${dependencies[@]}"
-#  composer require --dev --no-update "${basic_dev_dependencies[@]}"
-#
+#  # Required Dependencies install.
+#  composer require --prefer-dist --no-progress --no-interaction --no-install "${dependencies[@]}"
 #  composer update --no-progress --no-interaction
-
-
-#if [ -z "$(ls -A 'vendor/' 2>/dev/null)" ]; then
 #
+#  # Add and install basic dev dependencies.
+#  composer require --dev --prefer-dist --no-progress --no-interaction --no-install "${basic_dev_dependencies[@]}"
+#  composer update --no-progress --no-interaction
 #
-#fi
-
-## If the vendor folder is empty, install the packages
-#if [ ! -d "vendor" ] || [ -z "$(ls -A 'vendor/' 2>/dev/null)" ]; then
+#  #Add and install test dependencies.
+#  composer require --dev --prefer-dist --no-progress --no-interaction --no-install "${test_dependencies[@]}"
+#  composer update --no-progress --no-interaction
 #
-#  composer update --dev --prefer-dist --no-progress --no-interaction & install_pid=$!
+##  composer require --dev --no-update "${basic_dev_dependencies[@]}"
+##  composer require --dev --no-update "${test_dependencies[@]}"
+###  composer require --dev --no-update "${coding_standar_dependencies[@]}"
+##  composer install --prefer-dist --no-progress --no-interaction
 #
-#  if wait $install_pid; then
-#    echo "Dependencies installed successfully."
-#  else
-#    echo "Error: Dependencies installation failed."
-#  exit 1
-#  fi
-#
-#fi
+##  composer update --no-progress --no-interaction
