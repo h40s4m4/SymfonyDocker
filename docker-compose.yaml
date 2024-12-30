@@ -3,12 +3,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile-php
-    environment:
-      SYMFONY_VERSION: ${SYMFONY_VERSION:-7.1.*}
-      PHP_VERSION: ${PHP_VERSION:-8.3}
-      DATABASE_URL: mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:-!ChangeMe!}@database:3306/${MYSQL_DATABASE:-app}?serverVersion=${MYSQL_VERSION:-8}&charset=utf8mb4
-      XDEBUG_MODE: debug,develop
-      XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal} # Change depends on SO
+    env_file:
+      - ./docker/.env.docker
     volumes:
       - .:/var/www/html
     networks:
@@ -17,45 +13,76 @@ services:
   nginx:
     build:
       dockerfile: ./docker/Dockerfile-nginx
-    ports:
-      # HTTPS
-      - target: 80
-        published: ${HTTP_PORT:-80}
-        protocol: tcp
-      # HTTPS
-      - target: 443
-        published: ${HTTPS_PORT:-443}
-        protocol: tcp
+    env_file:
+      - ./docker/.env.docker
     volumes:
       - .:/var/www/html
-#      - ./docker/nginx/dev/default.conf:/etc/nginx/nginx.conf
+    ports:
+      - "${HTTP_PORT:-80}:80"
     depends_on:
       - php
     networks:
       - symfony
 
-  database:
-    image: mysql:${MYSQL_VERSION:-8.4}
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
-      MYSQL_USER: ${MYSQL_USER:-app}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
-      INCLUDE_TEST: ${TEST_DB:-true}
-    volumes:
-      - database_data:/var/lib/mysql:rw
-      - ./docker/scripts/db_test.sql:/docker-entrypoint-initdb.d/db_test.sql
-    ports:
-      - "3306:3306"
-    networks:
-      - symfony
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+#  nginx:
+#    build:
+#      dockerfile: ./docker/Dockerfile-nginx
+#    ports:
+#      # HTTPS
+#      - target: 80
+#        published: ${HTTP_PORT:-80}
+#        protocol: tcp
+#      # HTTPS
+#      - target: 443
+#        published: ${HTTPS_PORT:-443}
+#        protocol: tcp
+#    volumes:
+#      - .:/var/www/html
+##      - ./docker/nginx/dev/default.conf:/etc/nginx/nginx.conf
+#    depends_on:
+#      - php
+#    networks:
+#      - symfony
+#  database:
+#    image: mysql:${MYSQL_VERSION}
+#    restart: always
+#    env_file:
+#      - ./docker/.env.docker
+#    volumes:
+#      - database_data:/var/lib/mysql:rw
+#      - ./docker/scripts/db_test.sql:/docker-entrypoint-initdb.d/db_test.sql
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - symfony
+#    healthcheck:
+#      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 30s
+#  database:
+#    image: mysql:${MYSQL_VERSION:-8.4}
+#    restart: always
+#    environment:
+#      MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
+#      MYSQL_USER: ${MYSQL_USER:-app}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+#      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+#      INCLUDE_TEST: ${TEST_DB:-false}
+#    volumes:
+#      - database_data:/var/lib/mysql:rw
+#      - ./docker/scripts/db_test.sql:/docker-entrypoint-initdb.d/db_test.sql
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - symfony
+#    healthcheck:
+#      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 30s
 
 volumes:
   database_data:

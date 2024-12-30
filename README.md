@@ -7,29 +7,37 @@ it automatically runs the Symfony installation with a basic skeleton.
 
 Install a TEST DB too
 
-
-
-
 > [!WARNING]  
 > It is only for development purposes :P
 
 
-## Docker
-
-Build fresh images and start project
+## Options
 
 ```
-docker compose build --no-cache 
-docker compose up --pull always -d --wait
+SYMFONY_VERSION     (default 7.1.*)
+PHP_VERSION         (default 8.3)
+MYSQL_VERSION       (default 8.4)
+MYSQL_USER          (default app)
+MYSQL_PASSWORD      (default !ChangeMe!)
+MYSQL_DATABASE      (default app)
+TEST_DB             (default false)
+XDEBUG_CLIENT_HOST  (default host.docker.internal)
+HTTP_PORT           (default 80)
+HTTPS_PORT          (default 443)
 ```
 
-Stop and remove containers.
-```
-docker compose down --remove-orphans
-```
+
+
+
+## Getting Started
+
+1. Run `docker compose build --no-cache` to build fresh images
+2. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
+3. Open `https://localhost` in your favorite web browser
+4. Run `docker compose down --remove-orphans` to stop the Docker containers.
+
 
 ## Dependencies
-
 
 - symfony/orm-pack
   - [Doctrine ORM](https://symfony.com/doc/current/doctrine.html)
@@ -39,8 +47,6 @@ docker compose down --remove-orphans
   - [The API-first framework for Symfony](https://api-platform.com/?s=symfony)
 - nesbot/carbon
   - [An API extension for DateTime](https://github.com/briannesbitt/Carbon)
-- symfonycasts/micro-mapper
-  - [A tiny, underwhelming data mapper to map one object to another](https://github.com/briannesbitt/Carbon)
 
 ## Dev Dependencies
 
